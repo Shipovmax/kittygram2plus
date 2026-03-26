@@ -1,14 +1,16 @@
 from rest_framework import viewsets
-# Импортируем пермишены из нашего нового файла
 from .permissions import OwnerOrReadOnly, ReadOnly
 from .models import Achievement, Cat, User
 from .serializers import AchievementSerializer, CatSerializer, UserSerializer
+from rest_framework.throttling import ScopedRateThrottle
 
+from .throttling import WorkingHoursRateThrottle
 
 class CatViewSet(viewsets.ModelViewSet):
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
     permission_classes = (OwnerOrReadOnly,)
+    throttle_classes = (WorkingHoursRateThrottle, ScopedRateThrottle)
     throttle_scope = 'low_request'
 
     def perform_create(self, serializer):
