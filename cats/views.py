@@ -8,8 +8,8 @@ from .serializers import AchievementSerializer, CatSerializer, UserSerializer
 class CatViewSet(viewsets.ModelViewSet):
     queryset = Cat.objects.all()
     serializer_class = CatSerializer
-    # По умолчанию используем наше правило "Владелец или чтение"
     permission_classes = (OwnerOrReadOnly,)
+    throttle_scope = 'low_request'
 
     def perform_create(self, serializer):
         # Автоматически сохраняем текущего пользователя как владельца
