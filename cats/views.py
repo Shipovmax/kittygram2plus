@@ -3,6 +3,7 @@ from .permissions import OwnerOrReadOnly, ReadOnly
 from .models import Achievement, Cat, User
 from .serializers import AchievementSerializer, CatSerializer, UserSerializer
 from rest_framework.throttling import ScopedRateThrottle
+from .pagination import CatsPagination
 
 from .throttling import WorkingHoursRateThrottle
 
@@ -12,6 +13,7 @@ class CatViewSet(viewsets.ModelViewSet):
     permission_classes = (OwnerOrReadOnly,)
     throttle_classes = (WorkingHoursRateThrottle, ScopedRateThrottle)
     throttle_scope = 'low_request'
+    pagination_class = CatsPagination
 
     def perform_create(self, serializer):
         # Автоматически сохраняем текущего пользователя как владельца
