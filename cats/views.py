@@ -2,10 +2,7 @@ from rest_framework import viewsets
 from .permissions import OwnerOrReadOnly, ReadOnly
 from .models import Achievement, Cat, User
 from .serializers import AchievementSerializer, CatSerializer, UserSerializer
-from rest_framework.throttling import ScopedRateThrottle
-from .pagination import CatsPagination
 from django_filters.rest_framework import DjangoFilterBackend
-from .throttling import WorkingHoursRateThrottle
 from rest_framework import filters
 
 class CatViewSet(viewsets.ModelViewSet):
@@ -14,22 +11,17 @@ class CatViewSet(viewsets.ModelViewSet):
     permission_classes = (OwnerOrReadOnly,)
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,
                        filters.OrderingFilter)
-    pagination_class = None
     filterset_fields = ('color', 'birth_year')
     search_fields = ('name',)
     ordering_fields = ('name', 'birth_year')
     ordering = ('birth_year',)
 
     def perform_create(self, serializer):
-        # Автоматически сохраняем текущего пользователя как владельца
         serializer.save(owner=self.request.user)
 
     def get_permissions(self):
-        # Если нужно посмотреть детали конкретного котика (action 'retrieve')
         if self.action == 'retrieve':
-            # Разрешаем доступ всем (ReadOnly)
             return (ReadOnly(),)
-        # В остальных случаях используем настройки из permission_classes
         return super().get_permissions()
 
 

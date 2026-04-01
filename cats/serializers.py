@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 import datetime as dt
 
-from .models import CHOICES, Achievement, AchievementCat, Cat, User
+from .models import Achievement, AchievementCat, Cat, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,13 +25,12 @@ class AchievementSerializer(serializers.ModelSerializer):
 
 class CatSerializer(serializers.ModelSerializer):
     achievements = AchievementSerializer(many=True, required=False)
-    color = serializers.ChoiceField(choices=CHOICES)
     age = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Cat
         fields = ('id', 'name', 'color', 'birth_year', 'achievements', 'owner',
-                  'age')
+                  'age', 'image')
         read_only_fields = ('owner',)
 
     def get_age(self, obj):
@@ -44,6 +43,21 @@ class CatSerializer(serializers.ModelSerializer):
         else:
             achievements = validated_data.pop('achievements')
             cat = Cat.objects.create(**validated_data)
+            for achievement in achievements:
+                current_achievement, status = Achievement.objects.get_or_create(
+                    **achievement)
+                AchievementCat.objects.create(
+                    achievement=current_achievement, cat=cat)
+            return cat
+
+    def update(self, instance, validated_data):
+        if 'achievements' not in self.initial_data:
+            cat = super().update(instance, validated_data)
+            return cat
+        else:
+            achievements = validated_data.pop('achievements')
+            cat = super().update(instance, validated_data)
+            AchievementCat.objects.filter(cat=cat).delete()
             for achievement in achievements:
                 current_achievement, status = Achievement.objects.get_or_create(
                     **achievement)
