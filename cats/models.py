@@ -7,7 +7,7 @@ User = get_user_model()
 class Achievement(models.Model):
     name = models.CharField(max_length=64)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -24,7 +24,7 @@ class Cat(models.Model):
         default=None
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -32,5 +32,5 @@ class AchievementCat(models.Model):
     achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
     cat = models.ForeignKey(Cat, on_delete=models.CASCADE)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.achievement} {self.cat}'
